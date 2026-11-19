@@ -20,7 +20,7 @@ public class Produit {
     private BigDecimal commission = new BigDecimal("0.15");
     private Statut statut = Statut.A_ENVOYER;
 
-    public Produit(){
+    public Produit() {
 
     }
 
