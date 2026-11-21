@@ -54,5 +54,4 @@ public class ProduitService {
 
         return Conseil.INTERESSANT;
     }
-
 }
