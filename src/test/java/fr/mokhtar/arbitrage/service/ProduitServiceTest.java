@@ -60,7 +60,7 @@ class ProduitServiceTest {
         Produit produit = creerProduit(vente, "0", "0", achat);
         produit.setCommission(BigDecimal.ZERO);
 
-        assertEquals(attendu, service.conseilProduit(produit));
+        assertEquals(attendu, service.conseilProduit(produit).conseil());
     }
 
     // Méthode utilitaire : crée un produit avec les valeurs données

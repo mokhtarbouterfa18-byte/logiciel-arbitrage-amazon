@@ -1,6 +1,7 @@
 package fr.mokhtar.arbitrage.service;
 
 
+import fr.mokhtar.arbitrage.model.AnalyseConseil;
 import fr.mokhtar.arbitrage.model.Conseil;
 import fr.mokhtar.arbitrage.model.Produit;
 import org.springframework.stereotype.Service;
@@ -36,22 +37,33 @@ public class ProduitService {
         return beneficeUnite.divide(prixAchat, 4, RoundingMode.HALF_UP);
     }
 
-    public Conseil conseilProduit(Produit produit) {
+    public AnalyseConseil conseilProduit(Produit produit) {
         BigDecimal beneficeUnite = beneficeParUnite(produit);
         BigDecimal rendement = rendement(produit);
 
         if(beneficeUnite.compareTo(BigDecimal.ZERO) < 0){
-            return Conseil.A_EVITER;
+            return new AnalyseConseil(Conseil.A_EVITER, "Perte de " + beneficeUnite.negate() + " € par unité : la vente ne couvre pas les frais et l'achat.");
         }
 
-        if(beneficeUnite.compareTo(BENEFICE_MINIMUM) < 0 || rendement.compareTo(RENDEMENT_MINIMUM) < 0){
-            return Conseil.MARGE_TROP_FAIBLE;
+        if(beneficeUnite.compareTo(BENEFICE_MINIMUM) < 0){
+            return new AnalyseConseil(Conseil.MARGE_TROP_FAIBLE, "Bénéfice de " + beneficeUnite + " € par unité, sous le minimum de " + BENEFICE_MINIMUM + " €.");
+        }
+
+        if(rendement.compareTo(RENDEMENT_MINIMUM) < 0){
+            return new AnalyseConseil(Conseil.MARGE_TROP_FAIBLE, "Rendement de " + enPourcentage(rendement) + ", sous le minimum de " + enPourcentage(RENDEMENT_MINIMUM) + " : beaucoup d'argent immobilisé pour peu de gain.");
         }
 
         if(rendement.compareTo(RENDEMENT_EXCELLENT) >= 0){
-            return Conseil.EXCELLENT;
+            return new AnalyseConseil(Conseil.EXCELLENT, "Rendement de " + enPourcentage(rendement) + " : tu gagnes plus que ta mise.");
         }
 
-        return Conseil.INTERESSANT;
+        return new AnalyseConseil(Conseil.INTERESSANT, "Bénéfice de " + beneficeUnite + " € et rendement de " + enPourcentage(rendement) + " : produit rentable.");
     }
+
+    private String enPourcentage(BigDecimal ratio) {
+        BigDecimal pourcentage = ratio.multiply(BigDecimal.valueOf(100));
+        pourcentage = pourcentage.setScale(0, RoundingMode.HALF_UP);
+        return pourcentage + " %";
+    }
+
 }
